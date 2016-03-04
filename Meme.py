@@ -15,7 +15,6 @@ def getMemes(sub):
 	global imgur
 	global obtainedMemes
 	global memesize
-	# 
 	
 	
 	# Add subreddit to the obtainedMemes array
@@ -46,8 +45,8 @@ async def on_message(message):
 	if message.author == client.user:
 		return
 		
-	elif message.content.startswith('~'):
-		sub = message.content[1:]
+	elif message.content.startswith('!meme'):
+		sub = (message.content.split(' '))[1]
 		if sub not in obtainedMemes:
 			print('Fetching meme list')
 			getMemes(sub)
