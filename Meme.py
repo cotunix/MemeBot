@@ -11,12 +11,18 @@ global count
 client = discord.Client()
 
 def getMemes(sub):		
+	# globals
 	global imgur
 	global obtainedMemes
+	global memesize
+	# 
+	
+	
 	# Add subreddit to the obtainedMemes array
 	obtainedMemes.append(sub)	
-	imgur = {}
 	imgur[sub] = []
+	
+	
 	req = 'http://reddit.com/r/' + sub + '/top.json?sort=top&t=day&limit=50'
 	q = Request(req)
 	q.add_header('User-Agent', 'Meme bot by /u/TheQuillmaster')
@@ -24,7 +30,8 @@ def getMemes(sub):
 		html = response.read()
 		j = json.loads(html.decode("utf-8"))
 		if response.status == 200:
-			for i in range(0,50):
+			memesize[sub] = len(j['data']['children'])
+			for i in range(0,memesize[sub]):
 				next = j['data']['children'][i]['data']['url']
 				print(next)
 				imgur[sub].append(next)
@@ -34,6 +41,7 @@ def getMemes(sub):
 async def on_message(message):
 	global obtainedMemes
 	global imgur
+	global memesize
 	# we do not want the bot to reply to itself
 	if message.author == client.user:
 		return
@@ -43,7 +51,7 @@ async def on_message(message):
 		if sub not in obtainedMemes:
 			print('Fetching meme list')
 			getMemes(sub)
-		memenum = randint(0,49)
+		memenum = randint(0, memesize[sub] - 1)
 		print(memenum)
 		print(imgur[sub][memenum])
 		
@@ -55,8 +63,14 @@ async def on_message(message):
 
 @client.event
 async def on_ready():
+	#initialize globals
 	global obtainedMemes
+	global imgur
+	global memesize
+	
 	obtainedMemes = []
+	memesize = {}
+	imgur = {}
 	print('Logged in as')
 	print(client.user.name)
 	print('------------')
