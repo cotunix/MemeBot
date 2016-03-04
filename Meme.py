@@ -29,6 +29,8 @@ def getMemes(sub):
 		html = response.read()
 		j = json.loads(html.decode("utf-8"))
 		if response.status == 200:
+			if len(j['data']['children']) == 0:
+				raise IOError("Invalid subreddit")
 			memesize[sub] = len(j['data']['children'])
 			for i in range(0,memesize[sub]):
 				next = j['data']['children'][i]['data']['url']
@@ -46,10 +48,18 @@ async def on_message(message):
 		return
 		
 	elif message.content.startswith('!meme'):
-		sub = (message.content.split(' '))[1]
+		if len(message.content) > 5:
+			sub = (message.content.split(' '))[1]
+		else:
+			sub = "me_irl"
 		if sub not in obtainedMemes:
 			print('Fetching meme list')
-			getMemes(sub)
+			try:
+				getMemes(sub)
+			except IOError as e:
+				print(str(e))
+				await client.send_message(message.channel, "Error: " + str(e))
+				return
 		memenum = randint(0, memesize[sub] - 1)
 		print(memenum)
 		print(imgur[sub][memenum])
