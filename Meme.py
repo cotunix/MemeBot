@@ -4,9 +4,7 @@ import asyncio
 import login
 from random import randint
 from urllib.request import Request, urlopen
-
-global imgur
-global count
+from urllib import error
 
 client = discord.Client()
 
@@ -18,14 +16,16 @@ def getMemes(sub):
 	
 	
 	# Add subreddit to the obtainedMemes array
-	obtainedMemes.append(sub)	
-	imgur[sub] = []
+	
 	
 	
 	req = 'http://reddit.com/r/' + sub + '/top.json?sort=top&t=day&limit=50'
 	q = Request(req)
 	q.add_header('User-Agent', 'Meme bot by /u/TheQuillmaster')
-	with urlopen(q) as response:
+	try:		
+		response = urlopen(q)
+		obtainedMemes.append(sub)	
+		imgur[sub] = []
 		html = response.read()
 		j = json.loads(html.decode("utf-8"))
 		if response.status == 200:
@@ -37,6 +37,9 @@ def getMemes(sub):
 				print(next)
 				imgur[sub].append(next)
 			asyncio.get_event_loop().call_later(43200, getMemes, sub)
+	except error.HTTPError as e:
+		raise IOError("Subreddit does not exist")
+		
 
 @client.event
 async def on_message(message):
@@ -47,6 +50,11 @@ async def on_message(message):
 	if message.author == client.user:
 		return
 		
+	elif message.content.startswith('!school'):
+		await client.send_message(message.channel, 'https://www.youtube.com/watch?v=RffAHV3tcgM')
+		
+	elif message.content.startswith('!shitmall'):
+		await client.send_message(message.channel, 'https://www.youtube.com/watch?v=5rczW1lNejw')
 	elif message.content.startswith('!meme'):
 		if len(message.content) > 5:
 			sub = (message.content.split(' '))[1]
