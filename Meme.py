@@ -38,7 +38,15 @@ def getMemes(sub):
 	except error.HTTPError as e:
 		raise IOError("Subreddit does not exist")
 	
-
+async def youtube(vid, channel):
+	if not discord.opus.is_loaded():
+		discord.opus.load_opus('opus')
+	ytdlopt = {'simulate':True}
+	voice = await client.join_voice_channel(channel)
+	player = await voice.create_ytdl_player(vid, ytdl_options=ytdlopt)
+	print('starting youtube player')
+	player.start()
+	
 	
 	
 
@@ -69,16 +77,12 @@ async def on_message(message):
 			await client.accept_invite(invite)
 		else:
 			await client.send_message(message.channel, directerror)
+			
+	elif message.content.startswith('!yt'):
+		await youtube(message.content.split(' ')[1], message.author.voice_channel) 
 	
 	elif message.content.startswith('!beyond'):
-		if not discord.opus.is_loaded():
-			discord.opus.load_opus('opus')
-		voice = await client.join_voice_channel(message.author.voice_channel)
-		player = await voice.create_ytdl_player('https://www.youtube.com/watch?v=8TGalu36BHA')
-		player.start()
-		if player.is_done():
-			print('Disconnecting')
-			await voice.disconnect()
+		await youtube('https://www.youtube.com/watch?v=8TGalu36BHA', message.author.voice_channel)
 	
 	elif message.content.startswith('!stop'):
 		if client.is_voice_connected():
