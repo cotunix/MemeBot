@@ -6,6 +6,7 @@ from random import randint
 from urllib.request import Request, urlopen
 from urllib import error
 
+
 client = discord.Client()
 
 def getMemes(sub):		
@@ -13,12 +14,9 @@ def getMemes(sub):
 	global imgur
 	global obtainedMemes
 	global memesize
-	
-	
+		
 	# Add subreddit to the obtainedMemes array
-	
-	
-	
+		
 	req = 'http://reddit.com/r/' + sub + '/top.json?sort=top&t=day&limit=50'
 	q = Request(req)
 	q.add_header('User-Agent', 'Meme bot by /u/TheQuillmaster')
@@ -39,13 +37,22 @@ def getMemes(sub):
 			asyncio.get_event_loop().call_later(43200, getMemes, sub)
 	except error.HTTPError as e:
 		raise IOError("Subreddit does not exist")
-		
+	
+
+	
+	
+
+@client.event
+async def on_server_join(server):
+	await client.send_message(server.default_channel, "Hello! I'm MemeBot! Type !help to see available commands.")
 
 @client.event
 async def on_message(message):
 	global obtainedMemes
 	global imgur
 	global memesize
+	
+	directerror = "This message is only permitted through direct message. Send a direct message to MemeBot to run this command!"
 	# we do not want the bot to reply to itself
 	if message.author == client.user:
 		return
@@ -55,6 +62,32 @@ async def on_message(message):
 		
 	elif message.content.startswith('!shitmall'):
 		await client.send_message(message.channel, 'https://www.youtube.com/watch?v=5rczW1lNejw')
+		
+	elif message.content.startswith('!join'):
+		if isinstance(message.channel, discord.PrivateChannel):
+			invite = message.content.split(' ')[1]
+			await client.accept_invite(invite)
+		else:
+			await client.send_message(message.channel, directerror)
+	
+	elif message.content.startswith('!beyond'):
+		if not discord.opus.is_loaded():
+			discord.opus.load_opus('opus')
+		voice = await client.join_voice_channel(message.author.voice_channel)
+		player = await voice.create_ytdl_player('https://www.youtube.com/watch?v=8TGalu36BHA')
+		player.start()
+		if player.is_done():
+			print('Disconnecting')
+			await voice.disconnect()
+	
+	elif message.content.startswith('!stop'):
+		if client.is_voice_connected():
+			print("Disconnecting")
+			await client.voice.disconnect()
+		else:
+			print("No voice connected")
+			
+	
 	elif message.content.startswith('!meme'):
 		if len(message.content) > 5:
 			sub = (message.content.split(' '))[1]
@@ -73,17 +106,14 @@ async def on_message(message):
 		print(imgur[sub][memenum])
 		
 		await client.send_message(message.channel, imgur[sub][memenum])
-		
-		
-		
-		
-
+	
 @client.event
 async def on_ready():
 	#initialize globals
 	global obtainedMemes
 	global imgur
 	global memesize
+	
 	
 	obtainedMemes = []
 	memesize = {}
@@ -92,9 +122,5 @@ async def on_ready():
 	print(client.user.name)
 	print('------------')
 	count = -1
-	
-	
-
-
-	
+		
 client.run(login.email(), login.password())
