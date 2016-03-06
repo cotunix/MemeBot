@@ -2,6 +2,7 @@ import json
 import discord
 import asyncio
 import login
+from youtube import youtube
 from random import randint
 from urllib.request import Request, urlopen
 from urllib import error
@@ -37,16 +38,7 @@ def getMemes(sub):
 	except error.HTTPError as e:
 		raise IOError("Subreddit does not exist")
 	
-async def youtube(vid, channel):
-	if not discord.opus.is_loaded():
-		discord.opus.load_opus('opus')
-	ytdlopt = {'simulate':True}
-	voice = await client.join_voice_channel(channel)
-	player = await voice.create_ytdl_player(vid, ytdl_options=ytdlopt)
-	print('starting youtube player')
-	player.start()
-	await asyncio.sleep(player.duration)
-	await voice.disconnect()
+
 	
 
 	
@@ -82,7 +74,7 @@ async def on_message(message):
 		await youtube(message.content.split(' ')[1], message.author.voice_channel) 
 	
 	elif message.content.startswith('!beyond'):
-		await youtube('https://www.youtube.com/watch?v=8TGalu36BHA', message.author.voice_channel)
+		await youtube('https://www.youtube.com/watch?v=8TGalu36BHA', message.author.voice_channel, client)
 	
 	elif message.content.startswith('!stop'):
 		if client.is_voice_connected():
