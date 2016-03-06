@@ -1,11 +1,8 @@
-import json
 import discord
 import asyncio
 import login
 import youtube
 from random import randint
-from urllib.request import Request, urlopen
-from urllib import error
 
 client = discord.Client()
 

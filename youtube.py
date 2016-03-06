@@ -1,6 +1,9 @@
 import discord
 import asyncio
 import platform
+from urllib.request import Request, urlopen
+from urllib import error
+import json
 
 obtainedMemes = []
 memesize = {}
