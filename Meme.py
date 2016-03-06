@@ -2,46 +2,14 @@ import json
 import discord
 import asyncio
 import login
-from youtube import youtube
+import youtube
 from random import randint
 from urllib.request import Request, urlopen
 from urllib import error
 
 client = discord.Client()
 
-def getMemes(sub):		
-	# globals
-	global imgur
-	global obtainedMemes
-	global memesize
-		
-	# Add subreddit to the obtainedMemes array
-		
-	req = 'http://reddit.com/r/' + sub + '/top.json?sort=top&t=day&limit=50'
-	q = Request(req)
-	q.add_header('User-Agent', 'Meme bot by /u/TheQuillmaster')
-	try:		
-		response = urlopen(q)
-		obtainedMemes.append(sub)	
-		imgur[sub] = []
-		html = response.read()
-		j = json.loads(html.decode("utf-8"))
-		if response.status == 200:
-			if len(j['data']['children']) == 0:
-				raise IOError("Invalid subreddit")
-			memesize[sub] = len(j['data']['children'])
-			for i in range(0,memesize[sub]):
-				next = j['data']['children'][i]['data']['url']
-				print(next)
-				imgur[sub].append(next)
-			asyncio.get_event_loop().call_later(43200, getMemes, sub)
-	except error.HTTPError as e:
-		raise IOError("Subreddit does not exist")
-	
 
-	
-
-	
 @client.event
 async def on_server_join(server):
 	await client.send_message(server.default_channel, "Hello! I'm MemeBot! Type !help to see available commands.")
@@ -71,10 +39,10 @@ async def on_message(message):
 			await client.send_message(message.channel, directerror)
 			
 	elif message.content.startswith('!yt'):
-		await youtube(message.content.split(' ')[1], message.author.voice_channel) 
+		await youtube.run(message.content.split(' ')[1], message.author.voice_channel,client) 
 	
 	elif message.content.startswith('!beyond'):
-		await youtube('https://www.youtube.com/watch?v=8TGalu36BHA', message.author.voice_channel, client)
+		await youtube.run('https://www.youtube.com/watch?v=8TGalu36BHA', message.author.voice_channel, client)
 	
 	elif message.content.startswith('!stop'):
 		if client.is_voice_connected():
@@ -89,19 +57,19 @@ async def on_message(message):
 			sub = (message.content.split(' '))[1]
 		else:
 			sub = "me_irl"
-		if sub not in obtainedMemes:
+		if sub not in youtube.obtainedMemes:
 			print('Fetching meme list')
 			try:
-				getMemes(sub)
+				youtube.getMemes(sub)
 			except IOError as e:
 				print(str(e))
 				await client.send_message(message.channel, "Error: " + str(e))
 				return
-		memenum = randint(0, memesize[sub] - 1)
+		memenum = randint(0, youtube.memesize[sub] - 1)
 		print(memenum)
-		print(imgur[sub][memenum])
+		print(youtube.imgur[sub][memenum])
 		
-		await client.send_message(message.channel, imgur[sub][memenum])
+		await client.send_message(message.channel, youtube.imgur[sub][memenum])
 	
 @client.event
 async def on_ready():
@@ -111,9 +79,7 @@ async def on_ready():
 	global memesize
 	
 	
-	obtainedMemes = []
-	memesize = {}
-	imgur = {}
+	
 	print('Logged in as')
 	print(client.user.name)
 	print('------------')
