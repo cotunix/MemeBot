@@ -6,7 +6,6 @@ from random import randint
 from urllib.request import Request, urlopen
 from urllib import error
 
-
 client = discord.Client()
 
 def getMemes(sub):		
@@ -46,10 +45,11 @@ async def youtube(vid, channel):
 	player = await voice.create_ytdl_player(vid, ytdl_options=ytdlopt)
 	print('starting youtube player')
 	player.start()
-	
-	
+	await asyncio.sleep(player.duration)
+	await voice.disconnect()
 	
 
+	
 @client.event
 async def on_server_join(server):
 	await client.send_message(server.default_channel, "Hello! I'm MemeBot! Type !help to see available commands.")
