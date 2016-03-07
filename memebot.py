@@ -1,6 +1,5 @@
 import discord
 import asyncio
-import youtube
 import json
 from urllib.request import Request, urlopen
 from urllib import error
@@ -17,12 +16,6 @@ class MemeBot(discord.Client):
 	async def do(self, cmd, message):
 		await (MemeBot.__dict__)[cmd](self, message)
 		
-	async def school(self, message):
-		await self.send_message(message.channel, 'https://www.youtube.com/watch?v=RffAHV3tcgM')
-		
-	async def shitmall(self, message):
-		await self.send_message(message.channel, 'https://www.youtube.com/watch?v=5rczW1lNejw')
-		
 	async def join(self, message):
 		if isinstance(message.channel, discord.PrivateChannel):
 				invite = message.content.split(' ')[1]
@@ -30,8 +23,14 @@ class MemeBot(discord.Client):
 		else:
 			await send_message(message.channel, directerror)
 				
-	async def yt(self, message, vid=None):	
-		if vid is None:
+	async def yt(self, message):	
+		if message.content.split(" ")[1] == "beyond":
+			vid = "https://www.youtube.com/watch?v=8TGalu36BHA"
+		elif message.content.split(" ")[1] == "shitmall":
+			vid = "https://www.youtube.com/watch?v=5rczW1lNejw"
+		elif message.content.split(" ")[1] == "school":
+			vid = "https://www.youtube.com/watch?v=RffAHV3tcgM"
+		else:
 			vid = message.content.split(" ")[1]
 		if system == "Windows":
 			if not discord.opus.is_loaded():
@@ -44,9 +43,6 @@ class MemeBot(discord.Client):
 		await asyncio.sleep(player.duration)
 		await voice.disconnect()
 		
-	async def beyond(self, message):
-		print(message.content)
-		await self.yt(message,'https://www.youtube.com/watch?v=8TGalu36BHA')
 	
 	async def stop(self, message):
 		if self.is_voice_connected():
