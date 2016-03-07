@@ -5,6 +5,7 @@ from urllib.request import Request, urlopen
 from urllib import error
 from platform import system
 from random import randint
+from queue import Queue
 
 class MemeBot(discord.Client):
 	def __init__(self):
@@ -12,6 +13,8 @@ class MemeBot(discord.Client):
 		self.obtainedMemes = []
 		self.memesize = {}
 		self.imgur = {}	
+		self.vidqueue = Queue(maxsize=0)
+		self.player = None
 
 	async def do(self, cmd, message):
 		await (MemeBot.__dict__)[cmd](self, message)
@@ -32,22 +35,36 @@ class MemeBot(discord.Client):
 			vid = "https://www.youtube.com/watch?v=RffAHV3tcgM"
 		else:
 			vid = message.content.split(" ")[1]
+		# If we're running this on Windows we have to load opus.dll from the working directory
 		if system == "Windows":
 			if not discord.opus.is_loaded():
 				discord.opus.load_opus('opus')
 		ytdlopt = {'simulate':True}
-		voice = await self.join_voice_channel(message.author.voice_channel)
-		player = await voice.create_ytdl_player(vid, ytdl_options=ytdlopt)
-		print('starting youtube player')
-		player.start()
-		await asyncio.sleep(player.duration)
-		await voice.disconnect()
+		if self.voice is not None:
+			self.vidqueue.put(vid)
+			return
+		else:
+			voice = await self.join_voice_channel(message.author.voice_channel)
+			self.player = await voice.create_ytdl_player(vid, ytdl_options=ytdlopt)
+			print('starting youtube player')
+			self.player.start()
+			await asyncio.sleep(player.duration)
+		while True:
+			if self.vidqueue.empty():
+				await voice.disconnect()
+				return
+			else:
+				self.player = await voice.create_ytdl_player(self.vidqueue.get(), ytdl_options=ytdlopt)
+				self.player.start()
+				await asyncio.sleep(player.duration)
+			
 		
 	
 	async def stop(self, message):
 		if self.is_voice_connected():
 			print("Disconnecting")
 			await self.voice.disconnect()
+			
 		else:
 			print("No voice connected")
 				
