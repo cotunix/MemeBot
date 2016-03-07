@@ -28,11 +28,11 @@ class MemeBot(discord.Client):
 			await send_message(message.channel, directerror)
 				
 	async def yt(self, message):	
-		if message.content.split(" ")[1] == "beyond":
+		if (message.content.split(" ")[1]).lower() == "beyond":
 			vid = "https://www.youtube.com/watch?v=8TGalu36BHA"
-		elif message.content.split(" ")[1] == "shitmall":
+		elif message.content.split(" ")[1].lower() == "shitmall":
 			vid = "https://www.youtube.com/watch?v=5rczW1lNejw"
-		elif message.content.split(" ")[1] == "school":
+		elif message.content.split(" ")[1].lower() == "school":
 			vid = "https://www.youtube.com/watch?v=RffAHV3tcgM"
 		else:
 			vid = message.content.split(" ")[1]
