@@ -15,6 +15,7 @@ class MemeBot(discord.Client):
 		self.imgur = {}	
 		self.vidqueue = Queue(maxsize=0)
 		self.player = None
+		self.ytdlopt = {'simulate':True}
 
 	async def do(self, cmd, message):
 		await (MemeBot.__dict__)[cmd](self, message)
@@ -39,31 +40,37 @@ class MemeBot(discord.Client):
 		if system == "Windows":
 			if not discord.opus.is_loaded():
 				discord.opus.load_opus('opus')
-		ytdlopt = {'simulate':True}
-		if self.voice is not None:
+		if self.voice is not None and self.voice.is_connected():
+			print("adding video to queue")
 			self.vidqueue.put(vid)
 			return
 		else:
 			voice = await self.join_voice_channel(message.author.voice_channel)
-			self.player = await voice.create_ytdl_player(vid, ytdl_options=ytdlopt)
+			self.player = await voice.create_ytdl_player(vid, ytdl_options=self.ytdlopt)
 			print('starting youtube player')
 			self.player.start()
-			await asyncio.sleep(player.duration)
+			await asyncio.sleep(self.player.duration)
 		while True:
-			if self.vidqueue.empty():
+			if self.vidqueue.empty() and self.player.is_done():
 				await voice.disconnect()
 				return
-			else:
-				self.player = await voice.create_ytdl_player(self.vidqueue.get(), ytdl_options=ytdlopt)
+			elif self.player.is_done():
+				self.player = await voice.create_ytdl_player(self.vidqueue.get(), ytdl_options=self.ytdlopt)
 				self.player.start()
-				await asyncio.sleep(player.duration)
+				await asyncio.sleep(self.player.duration)
 			
 		
 	
 	async def stop(self, message):
 		if self.is_voice_connected():
-			print("Disconnecting")
-			await self.voice.disconnect()
+			if self.vidqueue.empty():
+				print("Disconnecting")
+				await self.voice.disconnect()
+			else:
+				self.player.stop()
+				print("player stopped")
+				self.player = await self.voice.create_ytdl_player(self.vidqueue.get(), ytdl_options=self.ytdlopt)
+				self.player.start()
 			
 		else:
 			print("No voice connected")
