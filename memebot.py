@@ -50,28 +50,28 @@ class MemeBot(discord.Client):
 			print('starting youtube player')
 			self.player.start()
 			await asyncio.sleep(self.player.duration)
-		while True:
-			if self.vidqueue.empty() and self.player.is_done():
-				await voice.disconnect()
-				return
-			elif self.player.is_done():
-				self.player = await voice.create_ytdl_player(self.vidqueue.get(), ytdl_options=self.ytdlopt)
-				self.player.start()
-				await asyncio.sleep(self.player.duration)
+			if self.player.is_done():
+				await self.next()
 			
-		
-	
 	async def stop(self, message):
+		if self.is_voice_connected():
+			await self.voice.disconnect()
+			self.vidqueue = Queue(maxsize=0)
+	
+	async def next(self, message=None):
 		if self.is_voice_connected():
 			if self.vidqueue.empty():
 				print("Disconnecting")
 				await self.voice.disconnect()
 			else:
 				self.player.stop()
-				print("player stopped")
+				print("Advancing to next song.")
 				self.player = await self.voice.create_ytdl_player(self.vidqueue.get(), ytdl_options=self.ytdlopt)
-				self.player.start()
-			
+				self.player.start()			
+				await asyncio.sleep(self.player.duration)
+				if self.player.is_done():
+					await self.next()
+					
 		else:
 			print("No voice connected")
 				
