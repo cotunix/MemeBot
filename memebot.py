@@ -57,7 +57,7 @@ class MemeBot(discord.Client):
 			print('starting youtube player')
 			self.player.start()
 			await asyncio.sleep(self.player.duration + 5)
-			if self.player.is_done():
+			if self.player.is_done() and self.voice.is_connected:
 				print("ending")
 				await self.next()
 			else:
