@@ -41,6 +41,8 @@ class MemeBot(discord.Client):
 			vid = "https://www.youtube.com/watch?v=RffAHV3tcgM"
 		else:
 			vid = message.content.split(" ")[1]
+			if not vid.startswith("https://you"):
+				return
 		# If we're running this on Windows we have to load opus.dll from the working directory
 		if system == "Windows":
 			if not discord.opus.is_loaded():
@@ -54,10 +56,14 @@ class MemeBot(discord.Client):
 			self.player = await voice.create_ytdl_player(vid, ytdl_options=self.ytdlopt)
 			print('starting youtube player')
 			self.player.start()
-			await asyncio.sleep(self.player.duration)
+			await asyncio.sleep(self.player.duration + 5)
 			if self.player.is_done():
+				print("ending")
 				await self.next()
+			else:
+				print("nothing")
 			
+
 	async def stop(self, message):
 		''' Immediately stops MemeBot's audio and disconnects MemeBot from the voice channel. Usage: !stop '''
 		if self.is_voice_connected():
