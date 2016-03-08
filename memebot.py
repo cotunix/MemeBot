@@ -41,7 +41,7 @@ class MemeBot(discord.Client):
 			vid = "https://www.youtube.com/watch?v=RffAHV3tcgM"
 		else:
 			vid = message.content.split(" ")[1]
-			if not vid.startswith("https://you"):
+			if "youtu" not in vid:
 				return
 		# If we're running this on Windows we have to load opus.dll from the working directory
 		if system == "Windows":
