@@ -15,19 +15,24 @@ class MemeBot(discord.Client):
 		self.imgur = {}	
 		self.vidqueue = Queue(maxsize=0)
 		self.player = None
+		# specify which commands we don't want to print help for
+		self.nohelp = ["do", "getMemes", "help", "__module__", "__doc__"]
 		self.ytdlopt = {'simulate':True}
 
 	async def do(self, cmd, message):
+		''' Function to call other functions from Meme.py '''
 		await (MemeBot.__dict__)[cmd](self, message)
 		
 	async def join(self, message):
+		''' Adds MemeBot to another server. Usage: !join <instant invite> '''
 		if isinstance(message.channel, discord.PrivateChannel):
 				invite = message.content.split(' ')[1]
 				await self.accept_invite(invite)
 		else:
-			await send_message(message.channel, directerror)
+			await send_message(message.channel, "This command is only available through private message.")
 				
 	async def yt(self, message):	
+		''' Plays the audio of a given youtube URL. Usage: !yt <URL> '''
 		if (message.content.split(" ")[1]).lower() == "beyond":
 			vid = "https://www.youtube.com/watch?v=8TGalu36BHA"
 		elif message.content.split(" ")[1].lower() == "shitmall":
@@ -54,11 +59,13 @@ class MemeBot(discord.Client):
 				await self.next()
 			
 	async def stop(self, message):
+		''' Immediately stops MemeBot's audio and disconnects MemeBot from the voice channel. Usage: !stop '''
 		if self.is_voice_connected():
 			await self.voice.disconnect()
 			self.vidqueue = Queue(maxsize=0)
 	
 	async def next(self, message=None):
+		''' Advances to the next video in the queue. Disconnects if there is none. Usage: !next '''
 		if self.is_voice_connected():
 			if self.vidqueue.empty():
 				print("Disconnecting")
@@ -76,6 +83,7 @@ class MemeBot(discord.Client):
 			print("No voice connected")
 				
 	async def meme(self, message):
+		''' Gets a meme from the given subreddit and posts the link in the chat. Usage: !meme <subreddit*> '''
 		if len(message.content) > 5:
 			sub = (message.content.split(' '))[1]
 		else:
@@ -91,7 +99,29 @@ class MemeBot(discord.Client):
 		memenum = randint(0, self.memesize[sub] - 1)
 		await self.send_message(message.channel, self.imgur[sub][memenum])
 		
-	def getMemes(self, sub):			
+	async def help(self, message):
+		''' Obtains the help message for a given command '''
+		tosend = "\n"
+		if len(message.content.split(" ")) == 1:
+			for func in MemeBot.__dict__:
+				if func not in self.nohelp and func not in discord.Client.__dict__:
+					tosend += "!" + func + "\n"		
+			tosend += "\nTo learn more about a specific command, type !help <command>"			
+		else:
+			if (message.content.split(" ")[1].startswith("!")):
+				func = (message.content.split(" ")[1])[1:]
+			else:
+				func = (message.content.split(" ")[1])
+			try:
+				tosend = func + " :" + (MemeBot.__dict__)[func].__doc__
+			except(KeyError):
+				tosend = "Command not recognized"
+		await self.send_message(message.channel, tosend)
+			
+		
+	def getMemes(self, sub):
+		''' Helper function for meme, to obtain memes from the subreddit '''
+		
 		# Add subreddit to the obtainedMemes array
 		req = 'http://reddit.com/r/' + sub + '/top.json?sort=top&t=day&limit=50'
 		q = Request(req)
