@@ -56,6 +56,7 @@ class MemeBot(discord.Client):
 			return
 		else:
 			voice = await self.join_voice_channel(message.author.voice_channel)
+			time = 0
 			if 't=' in vid:
 				time = vid.split('t=')
 				if time[1].endswith('s'):
@@ -72,7 +73,7 @@ class MemeBot(discord.Client):
 				self.player = await self.voice.create_ytdl_player(vid, ytdl_options=self.ytdlopt)
 			print('starting youtube player')
 			self.player.start()
-			await asyncio.sleep(self.player.duration + 5)
+			await asyncio.sleep(self.player.duration - time + 1)
 			if self.player.is_done() and self.voice.is_connected:
 				print("ending")
 				await self.next()
@@ -88,6 +89,7 @@ class MemeBot(discord.Client):
 	
 	async def next(self, message=None):
 		''' Advances to the next video in the queue. Disconnects if there is none. Usage: !next '''
+		time = 0
 		if self.is_voice_connected():
 			if self.vidqueue.empty():
 				print("Disconnecting")
@@ -110,7 +112,7 @@ class MemeBot(discord.Client):
 				else:
 					self.player = await self.voice.create_ytdl_player(vid, ytdl_options=self.ytdlopt)
 				self.player.start()			
-				await asyncio.sleep(self.player.duration)
+				await asyncio.sleep(self.player.duration - time + 1)
 				if self.player.is_done():
 					await self.next()
 					
