@@ -55,10 +55,12 @@ class MemeBot(discord.Client):
 			voice = await self.join_voice_channel(message.author.voice_channel)
 			if 't=' in vid:
 				time = vid.split('t=')
-				ffmpegopt = '-ss ' + time[1][:-1]
+				# -ss starts alittle late, so setting back 3 seconds to ensure it starts at that point or a little early
+				time = int(time[1][:-1]) - 3
+				ffmpegopt = '-ss ' + str(time)
 				self.player = await voice.create_ytdl_player(vid, ytdl_options=self.ytdlopt,options=ffmpegopt)
 			else:
-				self.player = await voice.create_ytdl_player(vid, ytdl_options=self.ytdlopt)
+				self.player = await self.voice.create_ytdl_player(vid, ytdl_options=self.ytdlopt)
 			print('starting youtube player')
 			self.player.start()
 			await asyncio.sleep(self.player.duration + 5)
@@ -87,7 +89,8 @@ class MemeBot(discord.Client):
 				vid = self.videqueue.get()
 				if 't=' in vid:
 					time = vid.split('t=')
-					ffmpegopt = '-ss ' + time[1][:-1]
+					time = int(time[1][:-1]) - 3
+					ffmpegopt = '-ss ' + time
 					self.player = await voice.create_ytdl_player(vid, ytdl_options=self.ytdlopt,options=ffmpegopt)
 				else:
 					self.player = await self.voice.create_ytdl_player(vid, ytdl_options=self.ytdlopt)
