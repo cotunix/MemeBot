@@ -22,7 +22,9 @@ class MemeBot(discord.Client):
 	async def do(self, cmd, message):
 		''' Function to call other functions from Meme.py '''
 		try:
-		await (MemeBot.__dict__)[cmd](self, message)
+			await (MemeBot.__dict__)[cmd](self, message)
+		except KeyError as e:
+			await self.send_message(message.channel, "Command not recognized")
 		
 	async def join(self, message):
 		''' Adds MemeBot to another server. Usage: !join <instant invite> '''
