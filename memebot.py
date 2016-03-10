@@ -53,7 +53,12 @@ class MemeBot(discord.Client):
 			return
 		else:
 			voice = await self.join_voice_channel(message.author.voice_channel)
-			self.player = await voice.create_ytdl_player(vid, ytdl_options=self.ytdlopt)
+			if 't=' in vid:
+				time = vid.split('t=')
+				ffmpegopt = '-ss ' + time[1][:-1]
+				self.player = await voice.create_ytdl_player(vid, ytdl_options=self.ytdlopt,options=ffmpegopt)
+			else:
+				self.player = await voice.create_ytdl_player(vid, ytdl_options=self.ytdlopt)
 			print('starting youtube player')
 			self.player.start()
 			await asyncio.sleep(self.player.duration + 5)
@@ -79,7 +84,13 @@ class MemeBot(discord.Client):
 			else:
 				self.player.stop()
 				print("Advancing to next song.")
-				self.player = await self.voice.create_ytdl_player(self.vidqueue.get(), ytdl_options=self.ytdlopt)
+				vid = self.videqueue.get()
+				if 't=' in vid:
+					time = vid.split('t=')
+					ffmpegopt = '-ss ' + time[1][:-1]
+					self.player = await voice.create_ytdl_player(vid, ytdl_options=self.ytdlopt,options=ffmpegopt)
+				else:
+					self.player = await self.voice.create_ytdl_player(vid, ytdl_options=self.ytdlopt)
 				self.player.start()			
 				await asyncio.sleep(self.player.duration)
 				if self.player.is_done():
