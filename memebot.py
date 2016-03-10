@@ -21,6 +21,7 @@ class MemeBot(discord.Client):
 
 	async def do(self, cmd, message):
 		''' Function to call other functions from Meme.py '''
+		try:
 		await (MemeBot.__dict__)[cmd](self, message)
 		
 	async def join(self, message):
@@ -55,9 +56,12 @@ class MemeBot(discord.Client):
 			voice = await self.join_voice_channel(message.author.voice_channel)
 			if 't=' in vid:
 				time = vid.split('t=')
-				
 				if time[1].endswith('s'):
-					time = int(time[1][:-1])
+					minutes = 0
+					if len(time[1]) > 3:
+						minutes = int(time[1][:-4])
+						minutes = minutes * 60
+					time = int(time[1][-3:-1]) + minutes
 				else:
 					time = int(time[1])
 				ffmpegopt = '-ss ' + str(time)
@@ -93,7 +97,10 @@ class MemeBot(discord.Client):
 				if 't=' in vid:
 					time = vid.split('t=')
 					if time[1].endswith('s'):
-						time = int(time[1][:-1])
+						if len(time[1]) > 3:
+							minutes = int(time[1][:-4])
+							minutes = minutes * 60
+						time = int(time[1][-3:-1]) + minutes
 					else:
 						time = int(time[1])
 					ffmpegopt = '-ss ' + str(time)
