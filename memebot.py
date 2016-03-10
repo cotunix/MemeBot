@@ -55,11 +55,11 @@ class MemeBot(discord.Client):
 			voice = await self.join_voice_channel(message.author.voice_channel)
 			if 't=' in vid:
 				time = vid.split('t=')
-				# -ss starts alittle late, so setting back 3 seconds to ensure it starts at that point or a little early
+				
 				if time[1].endswith('s'):
-					time = int(time[1][:-1]) - 1
+					time = int(time[1][:-1])
 				else:
-					time = int(time[1]) - 1
+					time = int(time[1])
 				ffmpegopt = '-ss ' + str(time)
 				self.player = await voice.create_ytdl_player(vid, ytdl_options=self.ytdlopt,options=ffmpegopt)
 			else:
@@ -89,7 +89,7 @@ class MemeBot(discord.Client):
 			else:
 				self.player.stop()
 				print("Advancing to next song.")
-				vid = self.videqueue.get()
+				vid = self.vidqueue.get()
 				if 't=' in vid:
 					time = vid.split('t=')
 					if time[1].endswith('s'):
