@@ -93,11 +93,11 @@ class MemeBot(discord.Client):
 				if 't=' in vid:
 					time = vid.split('t=')
 					if time[1].endswith('s'):
-						time = int(time[1][:-1]) - 1
+						time = int(time[1][:-1])
 					else:
-						time = int(time[1]) - 1
+						time = int(time[1])
 					ffmpegopt = '-ss ' + str(time)
-					self.player = await voice.create_ytdl_player(vid, ytdl_options=self.ytdlopt,options=ffmpegopt)
+					self.player = await self.voice.create_ytdl_player(vid, ytdl_options=self.ytdlopt,options=ffmpegopt)
 				else:
 					self.player = await self.voice.create_ytdl_player(vid, ytdl_options=self.ytdlopt)
 				self.player.start()			
