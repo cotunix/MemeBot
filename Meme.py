@@ -20,7 +20,7 @@ async def on_message(message):
 		return
 		
 	elif message.content.startswith("!"):
-		await client.do((message.content.split(" ")[0][1:]).lower(), message)
+		await client.do((message.content.split()[0][1:]).lower(), message)
 	
 @client.event
 async def on_ready():
