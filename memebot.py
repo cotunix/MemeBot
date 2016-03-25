@@ -1,6 +1,8 @@
 import discord
 import asyncio
 import json
+import os
+from nyaa import nyaa
 from urllib.request import Request, urlopen
 from urllib import error
 from platform import system
@@ -9,7 +11,7 @@ from queue import Queue
 
 class MemeBot(discord.Client):
 	def __init__(self):
-		discord.Client.__init__(self)	
+		discord.Client.__init__(self)
 		self.obtainedMemes = []
 		self.memesize = {}
 		self.imgur = {}	
@@ -154,7 +156,31 @@ class MemeBot(discord.Client):
 			except(KeyError):
 				tosend = "Command not recognized"
 		await self.send_message(message.channel, tosend)
-			
+		
+	async def nyaa(self, message):
+		mess = message.split()
+		if "myanimelist" not in mess[1]:
+			print("meme")
+		elif list in mess[1]:
+			tosend = ""
+			for file in os.listdir("/home/ubuntu.MemeBot/lists"):
+				tosend += file
+			await self.send_message(message.channel, tosend)
+		else:
+			if len(mess) > 2:
+				if 'list' in mess[2].lower():
+					with open(mess[1], 'r') as list:
+						tosend = '';
+						for i,anime in enumerate(list):
+							tosend += i + " " + anime + "\n"
+					await self.send_message(message.channel, tosend)
+				with open(mess[1],'a') as list:
+					list.write(mess[2])
+			else:
+				with open(mess[1], 'r') as list:
+					for anime in list:
+						res = nyaa.search(anime + '720', user=64513)[:1]
+						
 		
 	def getMemes(self, sub):
 		''' Helper function for meme, to obtain memes from the subreddit '''
