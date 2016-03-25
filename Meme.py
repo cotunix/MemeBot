@@ -18,6 +18,10 @@ async def on_message(message):
 	# we do not want the bot to reply to itself
 	if message.author == client.user:
 		return
+	if message.author == "sharamall":
+		return
+	if message.author == "Micro":
+		return
 		
 	elif message.content.startswith("!"):
 		await client.do((message.content.split()[0][1:]).lower(), message)
