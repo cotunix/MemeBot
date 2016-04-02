@@ -159,10 +159,10 @@ class MemeBot(discord.Client):
 		
 	async def nyaa(self, message):
 		search = "720"
-		mess = message[5:]
+		mess = message.content[5:]
 		search += mess
 		search = nyaa.search(search, user=64513)[0]
-		await self.send_message(message.channel, search)
+		await self.send_message(message.channel, search.link)
 		
 						
 		
