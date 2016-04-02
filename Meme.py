@@ -18,9 +18,7 @@ async def on_message(message):
 	# we do not want the bot to reply to itself
 	if message.author == client.user:
 		return
-	if message.author == "sharamall":
-		return
-	if message.author == "Micro":
+	if "sharamall" in str(message.author):
 		return
 		
 	elif message.content.startswith("!"):
