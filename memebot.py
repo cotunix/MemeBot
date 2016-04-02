@@ -158,28 +158,12 @@ class MemeBot(discord.Client):
 		await self.send_message(message.channel, tosend)
 		
 	async def nyaa(self, message):
-		mess = message.split()
-		if "myanimelist" not in mess[1]:
-			print("meme")
-		elif list in mess[1]:
-			tosend = ""
-			for file in os.listdir("/home/ubuntu.MemeBot/lists"):
-				tosend += file
-			await self.send_message(message.channel, tosend)
-		else:
-			if len(mess) > 2:
-				if 'list' in mess[2].lower():
-					with open(mess[1], 'r') as list:
-						tosend = '';
-						for i,anime in enumerate(list):
-							tosend += i + " " + anime + "\n"
-					await self.send_message(message.channel, tosend)
-				with open(mess[1],'a') as list:
-					list.write(mess[2])
-			else:
-				with open(mess[1], 'r') as list:
-					for anime in list:
-						res = nyaa.search(anime + '720', user=64513)[:1]
+		search = "720"
+		mess = message[5:]
+		search += mess
+		search = nyaa.search(search, user=64513)[0]
+		await self.send_message(message.channel, search)
+		
 						
 		
 	def getMemes(self, sub):
