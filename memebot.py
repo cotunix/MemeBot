@@ -158,6 +158,9 @@ class MemeBot(discord.Client):
 		await self.send_message(message.channel, tosend)
 		
 	async def nyaa(self, message):
+		if "search" in message.content:
+			search = message.content[12:]
+			await self.send_message(message.channel, "https://www.nyaa.se/?page=search&term=" + search + "&sort=2")
 		search = "720"
 		mess = message.content[5:]
 		search += mess
