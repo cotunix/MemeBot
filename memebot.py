@@ -37,7 +37,10 @@ class MemeBot(discord.Client):
 			await send_message(message.channel, "This command is only available through private message.")
 				
 	async def yt(self, message):	
-		''' Plays the audio of a given youtube URL. Usage: !yt <URL> '''
+		''' Plays the audio of a given youtube URL. Usage: !yt <URL> '''		
+		if ("list" in message.content):
+			await self.send_message(message.channel, "MemeBot does not support playlists. Remove the playlist from the URL and try again.")
+			return
 		if (message.content.split(" ")[1]).lower() == "beyond":
 			vid = "https://www.youtube.com/watch?v=8TGalu36BHA"
 		elif message.content.split(" ")[1].lower() == "shitmall":
